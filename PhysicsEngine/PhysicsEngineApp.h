@@ -16,6 +16,8 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
+	void setupContinuousDemo(glm::vec2 startPos, float inclination, float speed, float gravity);
+
 	glm::vec2 paddlePos;
 
 	PhysicsScene* m_physicsScene;

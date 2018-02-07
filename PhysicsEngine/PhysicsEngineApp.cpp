@@ -39,7 +39,31 @@ bool PhysicsEngineApp::startup() {
 	ball3 = new Sphere(glm::vec2(0, 0), glm::vec2(0, 0), 0.1f, 5, glm::vec4(1, 0, 1, 1));
 	m_physicsScene->addActor(ball3);
 
+	setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);
+
 	return true;
+}
+
+void PhysicsEngineApp::setupContinuousDemo(glm::vec2 startPos, float inclination, float speed, float gravity)
+{
+	float t = 0;
+	float tStep = 0.5f;
+	float radius = 1.0f;
+	int segments = 12;
+	glm::vec4 colour = glm::vec4(1, 1, 0, 1);
+
+	glm::vec2 velocity = glm::vec2(sin(inclination), cos(inclination)) * speed;
+
+	float x;
+	float y;
+
+	while (t <= 5)
+	{
+		x = velocity.x * t;
+		y = velocity.y * t + (0.5 * gravity * t * t);
+		aie::Gizmos::add2DCircle(glm::vec2(x, y), radius, segments, colour);
+		t += tStep;
+	}
 }
 
 void PhysicsEngineApp::shutdown() {
@@ -52,59 +76,58 @@ void PhysicsEngineApp::shutdown() {
 }
 
 void PhysicsEngineApp::update(float deltaTime) {
-	aie::Gizmos::clear();
-
-
-	ball->applyForce(glm::vec2(10, 0));
-
-	m_physicsScene->update(deltaTime);
-	m_physicsScene->updateGizmos();
-
 	// input example
 	aie::Input* input = aie::Input::getInstance();
 
-	// create colors
-	static const glm::vec4 colors[] = {
-		glm::vec4(1, 0, 0, 1), glm::vec4(0, 1, 0, 1),
-		glm::vec4(0, 0, 1, 1), glm::vec4(0.8f, 0, 0.5f, 1),
-		glm::vec4(0, 1, 1, 1)
-	};
+	//aie::Gizmos::clear();
 
-	static const int rows = 5;
-	static const int columns = 10;
-	static const int hSpace = 1;
-	static const int vSpace = 1;
+	//ball->applyForce(glm::vec2(10, 0));
 
-	static const glm::vec2 scrExtents(100, 50);
-	static const glm::vec2 boxExtents(7, 3);
-	static const glm::vec2 startPos(
-		-(columns >> 1)*((boxExtents.x * 2) + vSpace) + boxExtents.x + (vSpace / 2.0f),
-		 scrExtents.y - ((boxExtents.y * 2) + hSpace));
+	//m_physicsScene->update(deltaTime);
+	//m_physicsScene->updateGizmos();
 
-	// draw the grids
-	glm::vec2 pos;
-	for (int y = 0; y < rows; y++) {
-		pos = glm::vec2(startPos.x, startPos.y - (y * ((boxExtents.y * 2) + hSpace)));
-		for (int x = 0; x < columns; x++) {
-			aie::Gizmos::add2DAABBFilled(pos, boxExtents, colors[y]);
-			pos.x += (boxExtents.x * 2) + vSpace;
-		}
-	}
+	//// create colors
+	//static const glm::vec4 colors[] = {
+	//	glm::vec4(1, 0, 0, 1), glm::vec4(0, 1, 0, 1),
+	//	glm::vec4(0, 0, 1, 1), glm::vec4(0.8f, 0, 0.5f, 1),
+	//	glm::vec4(0, 1, 1, 1)
+	//};
 
-	//// draw the ball
-	//aie::Gizmos::add2DCircle(glm::vec2(0, -35), 3, 12, glm::vec4(1,0,0,1));
+	//static const int rows = 5;
+	//static const int columns = 10;
+	//static const int hSpace = 1;
+	//static const int vSpace = 1;
 
-	// paddle movement
-	if (input->isKeyDown(aie::INPUT_KEY_LEFT)) {
-		paddlePos.x += -50.0f * deltaTime;
-	}
-	if (input->isKeyDown(aie::INPUT_KEY_RIGHT)) {
-		paddlePos.x += 50.0f * deltaTime;
-	}
+	//static const glm::vec2 scrExtents(100, 50);
+	//static const glm::vec2 boxExtents(7, 3);
+	//static const glm::vec2 startPos(
+	//	-(columns >> 1)*((boxExtents.x * 2) + vSpace) + boxExtents.x + (vSpace / 2.0f),
+	//	 scrExtents.y - ((boxExtents.y * 2) + hSpace));
 
-	// draw the player's paddle
-	aie::Gizmos::add2DAABBFilled(glm::vec2(paddlePos.x, -40), glm::vec2(12, 2),
-		glm::vec4(1, 0, 1, 1));
+	//// draw the grids
+	//glm::vec2 pos;
+	//for (int y = 0; y < rows; y++) {
+	//	pos = glm::vec2(startPos.x, startPos.y - (y * ((boxExtents.y * 2) + hSpace)));
+	//	for (int x = 0; x < columns; x++) {
+	//		aie::Gizmos::add2DAABBFilled(pos, boxExtents, colors[y]);
+	//		pos.x += (boxExtents.x * 2) + vSpace;
+	//	}
+	//}
+
+	////// draw the ball
+	////aie::Gizmos::add2DCircle(glm::vec2(0, -35), 3, 12, glm::vec4(1,0,0,1));
+
+	//// paddle movement
+	//if (input->isKeyDown(aie::INPUT_KEY_LEFT)) {
+	//	paddlePos.x += -50.0f * deltaTime;
+	//}
+	//if (input->isKeyDown(aie::INPUT_KEY_RIGHT)) {
+	//	paddlePos.x += 50.0f * deltaTime;
+	//}
+
+	//// draw the player's paddle
+	//aie::Gizmos::add2DAABBFilled(glm::vec2(paddlePos.x, -40), glm::vec2(12, 2),
+	//	glm::vec4(1, 0, 1, 1));
 
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
