@@ -37,7 +37,7 @@ bool PhysicsEngineApp::startup() {
 	m_physicsScene->addActor(ball1);
 	m_physicsScene->addActor(ball2);
 
-	m_physicsScene->sphere2Sphere(ball1, ball2);
+	
 
 	//setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);
 
@@ -79,6 +79,8 @@ void PhysicsEngineApp::update(float deltaTime) {
 	aie::Input* input = aie::Input::getInstance();
 
 	aie::Gizmos::clear();
+
+	m_physicsScene->sphere2Sphere(ball1, ball2);
 
 	m_physicsScene->update(deltaTime);
 	m_physicsScene->updateGizmos();
