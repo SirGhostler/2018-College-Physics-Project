@@ -27,7 +27,10 @@ protected:
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;
 
-	class Sphere* ball;
+	//class Sphere* ball;
+	//class Sphere* ball2;
+	//class Sphere* ball3;
+
+	class Sphere* ball1;
 	class Sphere* ball2;
-	class Sphere* ball3;
 };
