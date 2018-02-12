@@ -1,7 +1,5 @@
 #pragma once
 #include "RigidBody.h"
-#include <glm\vec2.hpp>
-#include <glm\glm.hpp>
 
 class Sphere : public Rigidbody 
 {

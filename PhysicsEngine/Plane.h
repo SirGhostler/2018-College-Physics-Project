@@ -7,8 +7,8 @@ class Plane : public PhysicsObject
 public:
 
 	Plane();
-	Plane(const glm::vec2& normal, float distanceToOrigin);
-	~Plane();
+	Plane(const glm::vec2& normal, float distanceToOrigin, glm::vec4 color);
+	//~Plane();
 
 	virtual void fixedUpdate(glm::vec2 gravity, float dt) override {}
 	virtual void debug() override {}

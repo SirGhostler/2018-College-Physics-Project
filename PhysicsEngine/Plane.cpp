@@ -8,17 +8,11 @@ Plane::Plane() : PhysicsObject(ShapeType::PLANE)
 	m_normal = glm::vec2(0, 1);
 }
 
-Plane::Plane(const glm::vec2 & normal, float distanceToOrigin)
+Plane::Plane(const glm::vec2 & normal, float distanceToOrigin, glm::vec4 color)
 	: PhysicsObject(ShapeType::PLANE)
 	, m_normal(normal)
 	, m_distanceToOrigin(distanceToOrigin)
 {
-}
-
-Plane::~Plane()
-{
-
-
 }
 
 void Plane::makeGizmo()

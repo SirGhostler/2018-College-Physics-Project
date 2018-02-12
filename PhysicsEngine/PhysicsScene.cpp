@@ -1,17 +1,39 @@
-// Include .h files.
+// Include .h files
 #include "PhysicsScene.h"
 #include "PhysicsObject.h"
 #include "RigidBody.h"
 #include "Sphere.h"
+#include "Plane.h"
 
-// Other includes.
+// Other includes
 #include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <list>
 
-// Typedefs.
+// Typedefs
 typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
+
+//============================================================================================================================================
+// Constructors
+
+// Constructor
+PhysicsScene::PhysicsScene()
+{
+	// Set time step to 0.0f and gravity to 0, 0.0f
+	m_timeStep = 0.0f;
+	m_gravity = glm::vec2(0, 0.0f);
+}
+
+// Deconstructor
+PhysicsScene::~PhysicsScene()
+{
+	// Delete all actors in the scene
+	for (auto& actor : m_actors)
+	{
+		delete actor;
+	}
+}
 
 //============================================================================================================================================
 // Collision Functions
@@ -54,19 +76,43 @@ void PhysicsScene::checkForCollision()
 // Plane to Plane Collision
 bool PhysicsScene::plane2Plane(PhysicsObject *, PhysicsObject *)
 {
+	// Return false, two static objects won't really collide anyway.
 	return false;
 }
 
 // Plane to Sphere Collision
-bool PhysicsScene::plane2Sphere(PhysicsObject *, PhysicsObject *)
+bool PhysicsScene::plane2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	return false;
+	// Run Sphere to Plane collission function in reverse.
+	return sphere2Plane(obj2, obj1);
 }
 
 // Sphere to Plane Collision
-bool PhysicsScene::sphere2Plane(PhysicsObject *, PhysicsObject *)
+bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	return false;
+	Sphere *sphere = dynamic_cast<Sphere*>(obj1);
+	Plane  *plane = dynamic_cast <Plane*> (obj2);
+
+	//if we are successful then test for collision
+	if (sphere != nullptr && plane != nullptr)
+	{
+		glm::vec2 collisionNormal = plane->getNormal();
+		float sphereToPlane = glm::dot(sphere->getPosition(), plane->getNormal()) - plane->getDistanceToOrigin();
+
+		// if we are behind plane then we flip the normal
+		if (sphereToPlane < 0)
+		{
+			collisionNormal *= -1; sphereToPlane *= -1;
+		}
+
+		float intersection = sphere->getRadius() - sphereToPlane;
+
+		if (intersection > 0)
+		{
+			//set sphere velocity to zero here
+			return true;
+		}
+	} return false;
 }
 
 // Sphere to Sphere Collision
@@ -75,6 +121,7 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 	//try to cast objects to sphere and sphere
 	Sphere *sphere1 = dynamic_cast<Sphere*>(obj1);
 	Sphere *sphere2 = dynamic_cast<Sphere*>(obj2);
+
 	//if we are successful then test for collision
 	if (sphere1 != nullptr && sphere2 != nullptr)
 	{
@@ -91,37 +138,19 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 }
 
 //============================================================================================================================================
-// Constructors
-
-// Constructor
-PhysicsScene::PhysicsScene()
-{
-	m_timeStep = 0.0f;
-	m_gravity = glm::vec2(0, 0.0f);
-}
-
-// Deconstructor
-PhysicsScene::~PhysicsScene()
-{
-	for (auto& actor : m_actors)
-	{
-		delete actor;
-	}
-}
-
-//============================================================================================================================================
 // Actor Functions
 
 // Add Actor
-void PhysicsScene::addActor(PhysicsObject * actor)
+void PhysicsScene::addActor(PhysicsObject* actor)
 {
-	// Push the new Actor onto the m_actors stack.
+	// Push the new Actor onto the m_actors stack
 	m_actors.push_back(actor);
 }
 
 // Remove Actor
-void PhysicsScene::removeActor(PhysicsObject * actor)
+void PhysicsScene::removeActor(PhysicsObject* actor)
 {
+	// Remove specified actor from the stack
 	std::remove(std::begin(m_actors), std::end(m_actors), actor);
 }
 
@@ -132,7 +161,7 @@ void PhysicsScene::removeActor(PhysicsObject * actor)
 void PhysicsScene::update(float dt) {
 	static std::list<PhysicsObject*> dirty; 
 	
-	// update physics at a fixed time step
+	// Update physics at a fixed time step
 	static float accumulatedTime = 0.0f;
 	accumulatedTime += dt;
 	
@@ -145,7 +174,6 @@ void PhysicsScene::update(float dt) {
 		accumulatedTime -= m_timeStep; 
 		
 		// check for collisions (ideally you'd want to have some sort of // scene management in place)
-		
 		for (auto pActor : m_actors)
 		{
 			for (auto pOther : m_actors)
@@ -158,7 +186,8 @@ void PhysicsScene::update(float dt) {
 
 				Rigidbody* pRigid = dynamic_cast<Rigidbody*>(pActor);
 
-				if (pRigid->checkCollision(pOther) == true)
+				// Check to make sure pRigid exists (is not nullptr) before checking for collision
+				if (pRigid && pRigid->checkCollision(pOther) == true)
 				{
 					pRigid->applyForceToActor(dynamic_cast<Rigidbody*>(pOther), pRigid->getVelocity() * pRigid->getMass());
 					dirty.push_back(pRigid); dirty.push_back(pOther);
@@ -181,6 +210,7 @@ void PhysicsScene::updateGizmos()
 // Debugging
 void PhysicsScene::debugScene()
 {
+	// Set count to 0 for iteration
 	int count = 0;
 	for (auto pActor : m_actors)
 	{
