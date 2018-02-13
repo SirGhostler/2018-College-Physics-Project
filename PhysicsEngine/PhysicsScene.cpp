@@ -118,22 +118,27 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 // Sphere to Sphere Collision
 bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	//try to cast objects to sphere and sphere
+	// Cast Sphere 1 to Obj1 and Sphere 2 to Obj2
 	Sphere *sphere1 = dynamic_cast<Sphere*>(obj1);
 	Sphere *sphere2 = dynamic_cast<Sphere*>(obj2);
 
-	//if we are successful then test for collision
+	// Check if both Spheres exist
 	if (sphere1 != nullptr && sphere2 != nullptr)
 	{
+		// Get the radii of both Spheres and combine them
 		float combinedRadii = (sphere1->getRadius() + sphere2->getRadius());
+		// Get the distance between both Spheres
 		float objectDistance = glm::distance(sphere1->getPosition(), sphere2->getPosition());
 
+		// Check if the distance between both Spheres is less than their combined radii
 		if (objectDistance < combinedRadii)
 		{
-			sphere1->setVelocity(glm::vec2(0,0));
-			sphere2->setVelocity(glm::vec2(0, 0));
+			// Call resolve collision function
+			sphere1->resolveCollision(sphere2);
 		}
 	}
+
+	// Return false if either Sphere doesn't exist
 	return false;
 }
 
@@ -163,6 +168,7 @@ void PhysicsScene::update(float dt) {
 	
 	// Update physics at a fixed time step
 	static float accumulatedTime = 0.0f;
+	// Increment the accumulated time by delta time
 	accumulatedTime += dt;
 	
 	while (accumulatedTime >= m_timeStep)

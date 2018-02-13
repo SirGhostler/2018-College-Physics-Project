@@ -32,7 +32,7 @@ PhysicsEngineApp::~PhysicsEngineApp()
 // Startup
 bool PhysicsEngineApp::startup()
 {
-	// increase the 2d line count to maximize the number of objects we can draw
+	// Increase the 2D line count to maximize the number of objects we can draw
 	aie::Gizmos::create(255U, 255U, 64435U, 65535U);
 	
 	m_2dRenderer = new aie::Renderer2D();
@@ -46,8 +46,8 @@ bool PhysicsEngineApp::startup()
 	m_physicsScene->setTimeStep(0.01f);
 
 	// Create new object																			// Add said object(actor) into the physics scene
-	collSphere1 = new Sphere(glm::vec2(-80, 0), glm::vec2(0, 0), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
-	collSphere2 = new Sphere(glm::vec2(80, 0), glm::vec2(0, 0), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
+	collSphere1 = new Sphere(glm::vec2(-80, 0), glm::vec2(15, 0), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
+	collSphere2 = new Sphere(glm::vec2(80, 0), glm::vec2(-15, 0), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
 	collPlane1 = new Plane(glm::vec2(0, 1), -45.0f, glm::vec4(1, 0, 1, 1));							m_physicsScene->addActor(collPlane1);
 
 	//setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);
@@ -96,14 +96,10 @@ void PhysicsEngineApp::update(float deltaTime)
 	aie::Gizmos::clear();
 
 	// Call collision functions
-	// Sphere to Sphere
-	m_physicsScene->sphere2Sphere(collSphere1, collSphere2);
-	// Sphere to Plane
-	m_physicsScene->sphere2Plane(collSphere1, collPlane1);
-
-	// Update physics scene
-	m_physicsScene->update(deltaTime);
-	m_physicsScene->updateGizmos();
+	m_physicsScene->sphere2Sphere(collSphere1, collSphere2);				// Sphere to Sphere
+	m_physicsScene->sphere2Plane(collSphere1, collPlane1);					// Sphere to Plane
+	m_physicsScene->update(deltaTime);										// Update physics scene
+	m_physicsScene->updateGizmos();											// Update gizmos
 
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
