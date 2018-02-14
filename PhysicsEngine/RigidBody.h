@@ -30,6 +30,10 @@ protected:
 	glm::vec2 m_position;
 	glm::vec2 m_velocity;
 	glm::vec2 m_acceleration;
+
 	float m_mass;
-	float m_rotation; //2D so we only need a single float to represent our rotation
+	float m_rotation;
+
+	float m_linearDrag;
+	float m_angularDrag;
 };

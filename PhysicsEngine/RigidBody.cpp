@@ -4,11 +4,15 @@ Rigidbody::Rigidbody(ShapeType shapeID, glm::vec2 position, glm::vec2 velocity, 
 {
 	m_position = position;
 	m_velocity = velocity;
-	//m_acceleration = glm::vec2(0.0f, 0.0f);
 	m_rotation = rotation;
+
 	m_mass = mass;
 	m_shapeID = shapeID;
+
 	m_acceleration = glm::vec2(0, 0);
+
+	m_linearDrag = 0.3f;
+	m_angularDrag = 0.3f;
 }
 
 void Rigidbody::fixedUpdate(glm::vec2 gravity, float timeStep)

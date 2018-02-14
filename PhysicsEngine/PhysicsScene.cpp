@@ -50,8 +50,9 @@ static fn collisionFunctionArray[] =
 // Collision Check
 void PhysicsScene::checkForCollision()
 {
+	// Create actor count
 	int actorCount = m_actors.size();
-	//need to check for collisions against all objects except this one.
+	// Check for collisions against all objects except this one
 	for (int outer = 0; outer < actorCount - 1; outer++)
 	{
 		for (int inner = outer + 1; inner < actorCount; inner++)
@@ -66,7 +67,7 @@ void PhysicsScene::checkForCollision()
 			fn collisionFunctionPtr = collisionFunctionArray[functionIdx];
 			if (collisionFunctionPtr != nullptr)
 			{
-				// did a collision occur?
+				// Check if a collision occured
 				collisionFunctionPtr(object1, object2);
 			}
 		}
@@ -90,29 +91,34 @@ bool PhysicsScene::plane2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 // Sphere to Plane Collision
 bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 {
+	// Cast the Sphere to Obj1 and the Plane to Obj2
 	Sphere *sphere = dynamic_cast<Sphere*>(obj1);
 	Plane  *plane = dynamic_cast <Plane*> (obj2);
 
-	//if we are successful then test for collision
+	// Check if both objects actually exist
 	if (sphere != nullptr && plane != nullptr)
 	{
 		glm::vec2 collisionNormal = plane->getNormal();
 		float sphereToPlane = glm::dot(sphere->getPosition(), plane->getNormal()) - plane->getDistanceToOrigin();
 
-		// if we are behind plane then we flip the normal
+		// If the sphere is behind the plane, we flip the normal
 		if (sphereToPlane < 0)
 		{
 			collisionNormal *= -1; sphereToPlane *= -1;
 		}
 
+		// Get the intersection from the sphere to the plane
 		float intersection = sphere->getRadius() - sphereToPlane;
 
+		// Check if they're actually intersecting
 		if (intersection > 0)
 		{
-			//set sphere velocity to zero here
-			return true;
+			// Call resolve collision function
+			plane->resolveCollision(sphere);
 		}
-	} return false;
+	}
+	// Return false if either object doesn't exist
+	return false;
 }
 
 // Sphere to Sphere Collision
@@ -171,43 +177,18 @@ void PhysicsScene::update(float dt) {
 	// Increment the accumulated time by delta time
 	accumulatedTime += dt;
 	
+	// Check if accumulated time is equal to or greater than the timestep
 	while (accumulatedTime >= m_timeStep)
 	{
 		for (auto pActor : m_actors)
 		{
 			pActor->fixedUpdate(m_gravity, m_timeStep);
 		}
+		// Subtract accumulated time from timestep
 		accumulatedTime -= m_timeStep; 
 		
-		// check for collisions (ideally you'd want to have some sort of // scene management in place)
-		for (auto pActor : m_actors)
-		{
-			for (auto pOther : m_actors)
-			{
-				if (pActor == pOther)
-					continue;
-
-				if (std::find(dirty.begin(), dirty.end(), pActor) != dirty.end() && std::find(dirty.begin(), dirty.end(), pOther) != dirty.end())
-					continue;
-
-				Rigidbody* pRigid = dynamic_cast<Rigidbody*>(pActor);
-				Plane* pPlane = dynamic_cast<Plane*>(pActor);
-
-				// Check to make sure pRigid exists (is not nullptr) before checking for collision
-				if (pRigid && pRigid->checkCollision(pOther) == true)
-				{
-					pRigid->applyForceToActor(dynamic_cast<Rigidbody*>(pOther), pRigid->getVelocity() * pRigid->getMass());
-					dirty.push_back(pRigid); dirty.push_back(pOther);
-				}
-
-				/*if (pPlane && pRigid->checkCollision(pOther) == true)
-				{
-					pPlane->resolveCollision(pRigid);
-					dirty.push_back(pPlane); dirty.push_back(pRigid); dirty.push_back(pOther);
-				}*/
-			}
-		}
-		dirty.clear();
+		// Run collision check function
+		checkForCollision();
 	}
 }
 

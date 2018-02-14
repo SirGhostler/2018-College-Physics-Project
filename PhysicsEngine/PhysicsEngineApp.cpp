@@ -45,10 +45,13 @@ bool PhysicsEngineApp::startup()
 	m_physicsScene->setGravity(glm::vec2(0, 0));
 	m_physicsScene->setTimeStep(0.01f);
 
-	// Create new object																			// Add said object(actor) into the physics scene
-	collSphere1 = new Sphere(glm::vec2(-80, 0), glm::vec2(0, -25), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
-	collSphere2 = new Sphere(glm::vec2(80, 0), glm::vec2(0, 0), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
-	collPlane1 = new Plane(glm::vec2(0, 1), -45.0f, glm::vec4(1, 0, 1, 1));							m_physicsScene->addActor(collPlane1);
+	// Create new object																				// Add said object(actor) into the physics scene
+	collSphere1 = new Sphere(glm::vec2(-30, 0), glm::vec2(15, -25), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
+	collSphere2 = new Sphere(glm::vec2(30, 0), glm::vec2(-10, -28), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
+	collPlane1 = new Plane(glm::vec2(0, 1), -50.0f, glm::vec4(1, 0, 1, 1));	/*Upper Plane*/				m_physicsScene->addActor(collPlane1);
+	collPlane2 = new Plane(glm::vec2(0, 1), 50.0f, glm::vec4(1, 0, 1, 1));	/*Bottom Plane*/			m_physicsScene->addActor(collPlane2);
+	collPlane3 = new Plane(glm::vec2(1, 0), -50.0f, glm::vec4(1, 0, 1, 1));	/*Left Plane*/				m_physicsScene->addActor(collPlane3);
+	collPlane4 = new Plane(glm::vec2(1, 0), 50.0f, glm::vec4(1, 0, 1, 1));	/*Right Plane*/				m_physicsScene->addActor(collPlane4);
 
 	//setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);
 
@@ -63,9 +66,13 @@ void PhysicsEngineApp::shutdown()
 	delete collSphere1;				// Delete 1st Sphere
 	delete collSphere2;				// Delete 2nd Sphere
 	delete collPlane1;				// Delete 1st Plane
-	//delete collPlane2;				// Delete 2nd Plane
+	delete collPlane2;				// Delete 2nd Plane
 }
 
+//============================================================================================================================================
+// Setup Kinematic Formula Demo
+
+// Setup Kinematic Formula Demo
 void PhysicsEngineApp::setupContinuousDemo(glm::vec2 startPos, float inclination, float speed, float gravity)
 {
 	float t = 0;
@@ -88,6 +95,10 @@ void PhysicsEngineApp::setupContinuousDemo(glm::vec2 startPos, float inclination
 	}
 }
 
+//============================================================================================================================================
+// Update Function
+
+// Update
 void PhysicsEngineApp::update(float deltaTime)
 {
 	// input example
@@ -95,9 +106,7 @@ void PhysicsEngineApp::update(float deltaTime)
 
 	aie::Gizmos::clear();
 
-	// Call collision functions
-	m_physicsScene->sphere2Sphere(collSphere1, collSphere2);				// Sphere to Sphere
-	m_physicsScene->sphere2Plane(collSphere1, collPlane1);					// Sphere to Plane
+	// Call physics scene functions
 	m_physicsScene->update(deltaTime);										// Update physics scene
 	m_physicsScene->updateGizmos();											// Update gizmos
 
@@ -106,6 +115,10 @@ void PhysicsEngineApp::update(float deltaTime)
 		quit();
 }
 
+//============================================================================================================================================
+// Draw Function
+
+// Draw
 void PhysicsEngineApp::draw()
 {
 	// wipe the screen to the background colour
