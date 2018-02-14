@@ -191,6 +191,7 @@ void PhysicsScene::update(float dt) {
 					continue;
 
 				Rigidbody* pRigid = dynamic_cast<Rigidbody*>(pActor);
+				Plane* pPlane = dynamic_cast<Plane*>(pActor);
 
 				// Check to make sure pRigid exists (is not nullptr) before checking for collision
 				if (pRigid && pRigid->checkCollision(pOther) == true)
@@ -198,6 +199,12 @@ void PhysicsScene::update(float dt) {
 					pRigid->applyForceToActor(dynamic_cast<Rigidbody*>(pOther), pRigid->getVelocity() * pRigid->getMass());
 					dirty.push_back(pRigid); dirty.push_back(pOther);
 				}
+
+				/*if (pPlane && pRigid->checkCollision(pOther) == true)
+				{
+					pPlane->resolveCollision(pRigid);
+					dirty.push_back(pPlane); dirty.push_back(pRigid); dirty.push_back(pOther);
+				}*/
 			}
 		}
 		dirty.clear();

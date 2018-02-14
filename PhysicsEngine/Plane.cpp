@@ -1,11 +1,22 @@
+// Include .h files
 #include "Plane.h"
 #include "PhysicsEngineApp.h"
 #include "RigidBody.h"
+
+// Other includes
 #include <Gizmos.h>
 
+// Typedefs
+
+//============================================================================================================================================
+// Constructors
+
+// Constructor
 Plane::Plane() : PhysicsObject(ShapeType::PLANE)
 {
+	// Set the distance from the plane's origin
 	m_distanceToOrigin = 0;
+	// Set the plane's normal
 	m_normal = glm::vec2(0, 1);
 }
 
@@ -16,9 +27,16 @@ Plane::Plane(const glm::vec2 & normal, float distanceToOrigin, glm::vec4 color)
 {
 }
 
+
+//============================================================================================================================================
+// Gizmo Functions
+
+// Make Gizmo
 void Plane::makeGizmo()
 {
+	// Set the plane's length
 	float lineSegmentLength = 300;
+	// Set the center point
 	glm::vec2 centerPoint = m_normal * m_distanceToOrigin;
 	
 	// easy to rotate normal through 90 degrees around z
@@ -29,16 +47,25 @@ void Plane::makeGizmo()
 	aie::Gizmos::add2DLine(start, end, colour);
 }
 
+//============================================================================================================================================
+// Collision Functions
+
+// Resolve Collision
 void Plane::resolveCollision(Rigidbody* actor2)
 {
-	//glm::vec2 normal = glm::normalize(actor2->getPosition() - m_distanceToOrigin);
-	//glm::vec2 relativeVelocity = actor2->getVelocity() - m_velocity;
-	//float elasticity = 1;
-	//float j = glm::dot(-(1 + elasticity) * (relativeVelocity), normal) / glm::dot(normal, normal * ((1 / m_mass) + (1 / actor2->getMass())));
+	// Set the normal
+	glm::vec2 normal = m_normal;
+	// Get the relative velocity from the second actor
+	glm::vec2 relativeVelocity = actor2->getVelocity();
 
-	//glm::vec2 force = normal * j;
+	// Set elasticity
+	float elasticity = 1;
+	// Set the impulse magnitude
+	float j = glm::dot(-(1 + elasticity) * (relativeVelocity), normal) / glm::dot(normal, normal * ((1 / actor2->getMass())));
 
+	// Set force
+	glm::vec2 force = normal * j;
 
-	//setVelocity(getVelocity() - force / getMass());
-	//actor2->setVelocity(actor2->getVelocity() + force / actor2->getMass());
+	// Apply velocity to the second actor
+	actor2->setVelocity(actor2->getVelocity() + force / actor2->getMass());
 }

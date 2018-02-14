@@ -46,8 +46,8 @@ bool PhysicsEngineApp::startup()
 	m_physicsScene->setTimeStep(0.01f);
 
 	// Create new object																			// Add said object(actor) into the physics scene
-	collSphere1 = new Sphere(glm::vec2(-80, 0), glm::vec2(15, 0), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
-	collSphere2 = new Sphere(glm::vec2(80, 0), glm::vec2(-15, 0), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
+	collSphere1 = new Sphere(glm::vec2(-80, 0), glm::vec2(0, -25), 2.0f, 5, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1);
+	collSphere2 = new Sphere(glm::vec2(80, 0), glm::vec2(0, 0), 4.0f, 5, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2);
 	collPlane1 = new Plane(glm::vec2(0, 1), -45.0f, glm::vec4(1, 0, 1, 1));							m_physicsScene->addActor(collPlane1);
 
 	//setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);

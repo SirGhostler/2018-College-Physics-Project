@@ -1,5 +1,12 @@
 #pragma once
+// Include .h files
 #include "PhysicsObject.h"
+#include "RigidBody.h"
+
+// Other includes
+#include <glm\glm.hpp>
+
+// Typedefs
 
 class Plane : public PhysicsObject
 {

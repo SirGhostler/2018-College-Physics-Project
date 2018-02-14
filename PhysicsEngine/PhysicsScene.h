@@ -1,9 +1,13 @@
 #pragma once
+// Include .h files
+#include "PhysicsObject.h"
+
+// Other includes
 #include <vector>
 #include <glm\vec2.hpp>
 #include <glm\glm.hpp>
 
-class PhysicsObject;
+// Typedefs
 
 class PhysicsScene
 {
@@ -23,6 +27,9 @@ public:
 
 	void setTimeStep(const float timeStep) { m_timeStep = timeStep; }
 	float getTimeStep() const { return m_timeStep; }
+
+	//============================================================================================================================================
+	// Collision Checks
 
 	void checkForCollision();
 	static bool plane2Plane(PhysicsObject*, PhysicsObject*);
