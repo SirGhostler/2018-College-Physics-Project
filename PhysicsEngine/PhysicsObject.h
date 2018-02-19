@@ -12,8 +12,9 @@
 
 enum ShapeType
 {
-	PLANE = 0,
+	PLANE,
 	SPHERE,
+	AABB,
 	SHAPE_COUNT
 };
 

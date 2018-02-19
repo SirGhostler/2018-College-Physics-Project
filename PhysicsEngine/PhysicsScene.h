@@ -32,10 +32,19 @@ public:
 	// Collision
 
 	void checkForCollision();
+	// Planes
 	static bool plane2Plane(PhysicsObject* obj1, PhysicsObject* obj2);
 	static bool plane2Sphere(PhysicsObject* obj1, PhysicsObject* obj2);
+	static bool plane2AABB(PhysicsObject* obj1, PhysicsObject* obj2);
+	// Spheres
 	static bool sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2);
 	static bool sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2);
+	static bool sphere2AABB(PhysicsObject* obj1, PhysicsObject* obj2);
+	// AABBs
+	static bool AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2);
+	static bool AABB2Sphere(PhysicsObject* obj1, PhysicsObject* obj2);
+	static bool AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2);
+
 	static void separateCollision(PhysicsObject* obj1, PhysicsObject* obj2, glm::vec2 normal, float overlap);
 
 protected:

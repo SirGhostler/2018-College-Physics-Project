@@ -1,5 +1,10 @@
 #pragma once
+// Include .h files
 #include "RigidBody.h"
+
+// Other includes
+
+// Typedefs
 
 class Sphere : public Rigidbody 
 {

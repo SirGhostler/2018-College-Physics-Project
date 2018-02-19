@@ -41,10 +41,12 @@ PhysicsScene::~PhysicsScene()
 // Collision Function Array
 static fn collisionFunctionArray[] = 
 {
-	// Plane collides with Plane	// Plane collides with Sphere
-	PhysicsScene::plane2Plane,		PhysicsScene::plane2Sphere,
-	// Sphere collides with Plane	// Sphere collides with Sphere
-	PhysicsScene::sphere2Plane,		PhysicsScene::sphere2Sphere,
+	// Plane collides with Plane	// Plane collides with Sphere	// Plane collides with AABB
+	PhysicsScene::plane2Plane,		PhysicsScene::plane2Sphere,		PhysicsScene::plane2AABB,
+	// Sphere collides with Plane	// Sphere collides with Sphere	// Sphere collides with AABB
+	PhysicsScene::sphere2Plane,		PhysicsScene::sphere2Sphere,	PhysicsScene::sphere2AABB,
+	// AABB collides with Plane		// AABB collides with Sphere	// AABB collides with AABB
+	PhysicsScene::AABB2Plane,		PhysicsScene::sphere2AABB,		PhysicsScene::AABB2AABB,
 };
 
 // Collision Check
@@ -86,6 +88,11 @@ bool PhysicsScene::plane2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Run Sphere to Plane collission function in reverse.
 	return sphere2Plane(obj2, obj1);
+}
+
+bool PhysicsScene::plane2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
+{
+	return false;
 }
 
 // Sphere to Plane Collision
@@ -147,6 +154,26 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 	}
 
 	// Return false if either Sphere doesn't exist
+	return false;
+}
+
+bool PhysicsScene::sphere2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
+{
+	return false;
+}
+
+bool PhysicsScene::AABB2Plane(PhysicsObject * obj1, PhysicsObject * obj2)
+{
+	return false;
+}
+
+bool PhysicsScene::AABB2Sphere(PhysicsObject * obj1, PhysicsObject * obj2)
+{
+	return false;
+}
+
+bool PhysicsScene::AABB2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
+{
 	return false;
 }
 
