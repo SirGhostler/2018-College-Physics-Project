@@ -46,8 +46,8 @@ bool PhysicsEngineApp::startup()
 	m_physicsScene->setTimeStep(0.01f);
 
 	// Create new object																				// Add said object(actor) into the physics scene
-	collSphere1 = new Sphere(glm::vec2(-30, 0), glm::vec2(15, -25), 2.0f, 5, 1.0f, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1); // Pink
-	collSphere2 = new Sphere(glm::vec2(30, 0), glm::vec2(-10, -28), 4.0f, 5, 1.0f, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2); // Yellow
+	collSphere1 = new Sphere(glm::vec2(-30, 0), glm::vec2(15, -25), glm::vec2(0, 0), 2.0f, 5, 1.0f, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1); // Pink
+	collSphere2 = new Sphere(glm::vec2(30, 0), glm::vec2(-10, -28), glm::vec2(0, 0), 4.0f, 5, 1.0f, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2); // Yellow
 	collPlane1 = new Plane(glm::vec2(0, 1), -50.0f, glm::vec4(1, 0, 1, 1));	/*Upper Plane*/				m_physicsScene->addActor(collPlane1);
 	collPlane2 = new Plane(glm::vec2(0, 1), 50.0f, glm::vec4(1, 0, 1, 1));	/*Bottom Plane*/			m_physicsScene->addActor(collPlane2);
 	collPlane3 = new Plane(glm::vec2(1, 0), -50.0f, glm::vec4(1, 0, 1, 1));	/*Left Plane*/				m_physicsScene->addActor(collPlane3);

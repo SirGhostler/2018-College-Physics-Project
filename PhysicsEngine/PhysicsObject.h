@@ -1,6 +1,14 @@
 #pragma once
+// Include .h files
+
+// Other includes
 #include <glm\vec2.hpp>
 #include <glm\glm.hpp>
+
+// Typedefs
+
+//============================================================================================================================================
+// ShapeType ENUM
 
 enum ShapeType
 {
@@ -23,6 +31,8 @@ public:
 	virtual void resetPosition() {};
 
 	ShapeType getShapeID() { return m_shapeID; }
+
+	bool isStatic();
 
 protected:
 	ShapeType m_shapeID;

@@ -114,6 +114,7 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		if (intersection > 0)
 		{
 			// Call resolve collision function
+			separateCollision(sphere, plane, plane->getNormal(), (sphere->getRadius() - intersection));
 			plane->resolveCollision(sphere);
 		}
 	}
@@ -140,12 +141,65 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 		if (objectDistance < combinedRadii)
 		{
 			// Call resolve collision function
+			separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
 			sphere1->resolveCollision(sphere2);
 		}
 	}
 
 	// Return false if either Sphere doesn't exist
 	return false;
+}
+
+// Separate Collsion
+void PhysicsScene::separateCollision(PhysicsObject* obj1, PhysicsObject* obj2, glm::vec2 normal, float overlap)
+{
+	// Assign IsStatic result of each object to variables
+	bool firstIsStatic = obj1->isStatic();
+	bool secondIsStatic = obj2->isStatic();
+
+	// If the first Object is static
+	if (firstIsStatic)
+	{
+		// Cast rigidbody to Object 1
+		Rigidbody *rigidBody = dynamic_cast<Rigidbody*>(obj1);
+		if (rigidBody)
+		{
+			// Set a variable with the current position
+			glm::vec2 currentPosition = rigidBody->getPosition();
+			// Set position of the Object
+			rigidBody->setPosition(currentPosition + (overlap * normal));
+		}
+	}
+	// If the second Object is static
+	if (secondIsStatic)
+	{
+		// Cast rigidbody to Object 2
+		Rigidbody *rigidBody = dynamic_cast<Rigidbody*>(obj2);
+		if (rigidBody)
+		{
+			// Set a variable with the current position
+			glm::vec2 currentPosition = rigidBody->getPosition();
+			// Set position of the Object
+			rigidBody->setPosition(currentPosition - (overlap * normal));
+		}
+	}
+	// If both Objects are static
+	if (!firstIsStatic && !secondIsStatic)
+	{
+		// Cast rigidbody1 to Object 1
+		Rigidbody *rigidBody1 = dynamic_cast<Rigidbody*>(obj1);
+		// Cast rigidbody2 to Object 2
+		Rigidbody *rigidBody2 = dynamic_cast<Rigidbody*>(obj2);
+		if (rigidBody1 && rigidBody2)
+		{
+			// Set a variable with Object 1's and Object 2's current positions
+			glm::vec2 currentPosition1 = rigidBody1->getPosition();
+			glm::vec2 currentPosition2 = rigidBody2->getPosition();
+			// Set position of the Objects
+			rigidBody1->setPosition(currentPosition1 + ((overlap * normal) * 0.5f));
+			rigidBody2->setPosition(currentPosition2 - ((overlap * normal) * 0.5f));
+		}
+	}
 }
 
 //============================================================================================================================================
