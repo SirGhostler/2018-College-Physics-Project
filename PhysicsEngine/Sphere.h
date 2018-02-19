@@ -15,8 +15,8 @@ public:
 
 	virtual void makeGizmo();
 	virtual bool checkCollision(PhysicsObject* pOther);
+
 	float getRadius() { return m_radius; }
-	
 	glm::vec4 getColor() { return m_color; }
 
 protected:
