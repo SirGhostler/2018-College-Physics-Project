@@ -4,12 +4,14 @@
 #include "RigidBody.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "AABB.h"
 
 // Other includes
 #include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <list>
+#include <glm/glm.hpp>
 
 // Typedefs
 typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
@@ -46,7 +48,7 @@ static fn collisionFunctionArray[] =
 	// Sphere collides with Plane	// Sphere collides with Sphere	// Sphere collides with AABB
 	PhysicsScene::sphere2Plane,		PhysicsScene::sphere2Sphere,	PhysicsScene::sphere2AABB,
 	// AABB collides with Plane		// AABB collides with Sphere	// AABB collides with AABB
-	PhysicsScene::AABB2Plane,		PhysicsScene::sphere2AABB,		PhysicsScene::AABB2AABB,
+	PhysicsScene::AABB2Plane,		PhysicsScene::AABB2Sphere,		PhysicsScene::AABB2AABB,
 };
 
 // Collision Check
@@ -79,20 +81,22 @@ void PhysicsScene::checkForCollision()
 // Plane to Plane Collision
 bool PhysicsScene::plane2Plane(PhysicsObject *, PhysicsObject *)
 {
-	// Return false, two static objects won't really collide anyway.
+	// Return false, two static objects won't really collide anyway
 	return false;
 }
 
 // Plane to Sphere Collision
 bool PhysicsScene::plane2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	// Run Sphere to Plane collission function in reverse.
+	// Run Sphere to Plane collission function in reverse
 	return sphere2Plane(obj2, obj1);
 }
 
-bool PhysicsScene::plane2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
+// Plane to AABB Collision
+bool PhysicsScene::plane2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	return false;
+	// Run AABB to Plane collission function in reverse
+	return AABB2Plane(obj2, obj1);
 }
 
 // Sphere to Plane Collision
@@ -105,6 +109,7 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 	// Check if both objects actually exist
 	if (sphere != nullptr && plane != nullptr)
 	{
+		// Get the Plane's normal
 		glm::vec2 collisionNormal = plane->getNormal();
 		float sphereToPlane = glm::dot(sphere->getPosition(), plane->getNormal()) - plane->getDistanceToOrigin();
 
@@ -157,23 +162,136 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 	return false;
 }
 
-bool PhysicsScene::sphere2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
+// Sphere to AABB Collision
+bool PhysicsScene::sphere2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 {
+	// Run AABB to Sphere collission function in reverse
+	return AABB2Sphere(obj2, obj1);
+}
+
+// AABB to Plane Collision
+bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
+{
+	// Cast the AABB to Obj1 and the Plane to Obj2
+	AABB *aabb = dynamic_cast<AABB*>(obj1);
+	Plane *plane = dynamic_cast <Plane*> (obj2);
+
+	// Check if both objects actually exist
+	if (aabb != nullptr && plane != nullptr)
+	{
+		// Get the Plane's normal
+		glm::vec2 collisionNormal = plane->getNormal();
+
+		// Store the corners of the AABB into variables
+		glm::vec2 extents = aabb->getExtents();
+		glm::vec2 aabbTopLeftCorner  = aabb->getPosition() + glm::vec2(-extents.x, extents.y);
+		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(extents.x, extents.y);
+		glm::vec2 aabbBotLeftCorner  = aabb->getPosition() + glm::vec2(-extents.x, -extents.y);
+		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(extents.x, -extents.y);
+
+		// Dot product the corners by the Plane's normal
+		float o1 = (glm::dot(aabbTopLeftCorner, collisionNormal) - plane->getDistanceToOrigin());
+		float o2 = (glm::dot(aabbTopRightCorner, collisionNormal) - plane->getDistanceToOrigin());
+		float o3 = (glm::dot(aabbBotLeftCorner, collisionNormal) - plane->getDistanceToOrigin());
+		float o4 = (glm::dot(aabbBotRightCorner, collisionNormal) - plane->getDistanceToOrigin());
+
+		// Variable for the lowest (furthest) overlap
+		float lowestValue = 0;
+
+		// Checks to find the lowest overlap
+		if (!lowestValue)
+		{
+			// Check if o1 is the lowest
+			if (o1 < o2) { lowestValue = o1; }
+			if (o1 < o3) { lowestValue = o1; }
+			if (o1 < o4) { lowestValue = o1; }
+			// Check if o2 is the lowest
+			if (o2 < o1) { lowestValue = o2; }
+			if (o2 < o3) { lowestValue = o2; }
+			if (o2 < o4) { lowestValue = o2; }
+			// Check if o3 is the lowest
+			if (o3 < o1) { lowestValue = o3; }
+			if (o3 < o2) { lowestValue = o3; }
+			if (o3 < o4) { lowestValue = o3; }
+			// Check if o4 is the lowest
+			if (o4 < o1) { lowestValue = o4; }
+			if (o4 < o2) { lowestValue = o4; }
+			if (o4 < o3) { lowestValue = o4; }
+		}
+
+		// Check if any of the corners are below the plane
+		if ((o1 < 0) || (o2 < 0) || (o3 < 0) || (o4 < 0))
+		{
+			// Call resolve collision function
+			separateCollision(aabb, plane, plane->getNormal(), lowestValue);
+			plane->resolveCollision(aabb);
+		}
+	}
+	// Return false if either object doesn't exist
 	return false;
 }
 
-bool PhysicsScene::AABB2Plane(PhysicsObject * obj1, PhysicsObject * obj2)
+bool PhysicsScene::AABB2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
+	// Cast the AABB to Obj1 and the Sphere to Obj2
+	AABB *aabb = dynamic_cast<AABB*>(obj1);
+	Sphere *sphere = dynamic_cast <Sphere*> (obj2);
+
+	// Check if both objects exist
+	if (aabb != nullptr && sphere != nullptr)
+	{
+		glm::vec2 sphereCenter = sphere->getPosition();
+
+		// Store the corners of the AABB into variables
+		glm::vec2 extents = aabb->getExtents();
+		glm::vec2 aabbTopLeftCorner = aabb->getPosition() + glm::vec2(-extents.x, extents.y);
+		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(extents.x, extents.y);
+		glm::vec2 aabbBotLeftCorner = aabb->getPosition() + glm::vec2(-extents.x, -extents.y);
+		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(extents.x, -extents.y);
+
+
+		//glm::vec2 distanceToSphere = sphere->  aabb->getExtents().x;
+	}
+
+	// Return false if either object doesn't exist
 	return false;
+
 }
 
-bool PhysicsScene::AABB2Sphere(PhysicsObject * obj1, PhysicsObject * obj2)
+bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	return false;
-}
+	// Cast AABB 1 to Obj1 and AABB 2 to Obj2
+	AABB *aabb1 = dynamic_cast<AABB*>(obj1);
+	AABB *aabb2 = dynamic_cast <AABB*> (obj2);
 
-bool PhysicsScene::AABB2AABB(PhysicsObject * obj1, PhysicsObject * obj2)
-{
+	// Check if both AABBs actually exist
+	if (aabb1 != nullptr && aabb2 != nullptr)
+	{
+
+		// Store the corners of the first AABB into variables
+		glm::vec2 extents1 = aabb1->getExtents();
+		glm::vec2 aabbTopLeftCorner1 = aabb1->getPosition() + glm::vec2(-extents1.x, extents1.y);
+		glm::vec2 aabbTopRightCorner1 = aabb1->getPosition() + glm::vec2(extents1.x, extents1.y);
+		glm::vec2 aabbBotLeftCorner1 = aabb1->getPosition() + glm::vec2(-extents1.x, -extents1.y);
+		glm::vec2 aabbBotRightCorner1 = aabb1->getPosition() + glm::vec2(extents1.x, -extents1.y);
+
+		// Store the corners of the second AABB into variables
+		glm::vec2 extents2 = aabb2->getExtents();
+		glm::vec2 aabbTopLeftCorner2 = aabb2->getPosition() + glm::vec2(-extents2.x, extents2.y);
+		glm::vec2 aabbTopRightCorner2 = aabb2->getPosition() + glm::vec2(extents2.x, extents2.y);
+		glm::vec2 aabbBotLeftCorner2 = aabb2->getPosition() + glm::vec2(-extents2.x, -extents2.y);
+		glm::vec2 aabbBotRightCorner2 = aabb2->getPosition() + glm::vec2(extents2.x, -extents2.y);
+
+		// Check if the AABBs are colliding
+		if ((aabb1->m_maxX > aabb2->m_minX && aabb1->m_minX < aabb2->m_maxX))
+		{
+			//separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
+			//aabb1->resolveCollision(aabb2);
+			aabb1->setVelocity(glm::vec2(0, 0));
+		}
+	}
+
+	// Return false if either object doesn't exist
 	return false;
 }
 

@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "AABB.h"
 
 // Other includes
 #include <Gizmos.h>
@@ -46,12 +47,14 @@ bool PhysicsEngineApp::startup()
 	m_physicsScene->setTimeStep(0.01f);
 
 	// Create new object																				// Add said object(actor) into the physics scene
-	collSphere1 = new Sphere(glm::vec2(-30, 0), glm::vec2(15, -25), glm::vec2(0, 0), 2.0f, 5, 1.0f, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1); // Pink
-	collSphere2 = new Sphere(glm::vec2(30, 0), glm::vec2(-10, -28), glm::vec2(0, 0), 4.0f, 5, 1.0f, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2); // Yellow
-	collPlane1 = new Plane(glm::vec2(0, 1), -50.0f, glm::vec4(1, 0, 1, 1));	/*Upper Plane*/				m_physicsScene->addActor(collPlane1);
-	collPlane2 = new Plane(glm::vec2(0, 1), 50.0f, glm::vec4(1, 0, 1, 1));	/*Bottom Plane*/			m_physicsScene->addActor(collPlane2);
-	collPlane3 = new Plane(glm::vec2(1, 0), -50.0f, glm::vec4(1, 0, 1, 1));	/*Left Plane*/				m_physicsScene->addActor(collPlane3);
-	collPlane4 = new Plane(glm::vec2(1, 0), 50.0f, glm::vec4(1, 0, 1, 1));	/*Right Plane*/				m_physicsScene->addActor(collPlane4);
+	//collSphere1 = new Sphere(glm::vec2(-30, 0), glm::vec2(15, -25), glm::vec2(0, 0), 2.0f, 5, 1.0f, glm::vec4(1, 1, 0, 1));	m_physicsScene->addActor(collSphere1); // Pink
+	//collSphere2 = new Sphere(glm::vec2(30, 0), glm::vec2(-10, -28), glm::vec2(0, 0), 4.0f, 5, 1.0f, glm::vec4(1, 0, 1, 1));	m_physicsScene->addActor(collSphere2); // Yellow
+	collPlane1 = new Plane(glm::vec2(0, -1), -50.0f, glm::vec4(1, 0, 1, 1));	/*Upper Plane*/				m_physicsScene->addActor(collPlane1);
+	collPlane2 = new Plane(glm::vec2(0, 1), -50.0f, glm::vec4(1, 0, 1, 1));		/*Bottom Plane*/			m_physicsScene->addActor(collPlane2);
+	//collPlane3 = new Plane(glm::vec2(-1, 0), 50.0f, glm::vec4(1, 0, 1, 1));		/*Left Plane*/				m_physicsScene->addActor(collPlane3);
+	//collPlane4 = new Plane(glm::vec2(1, 0), 50.0f, glm::vec4(1, 0, 1, 1));		/*Right Plane*/				m_physicsScene->addActor(collPlane4);
+	collAABB1 = new AABB(glm::vec2(-30, 0), glm::vec2(5, 0), glm::vec2(0, 0), glm::vec2(5, 10), 2.0f, 0, glm::vec4(1, 1, 1, 1));	m_physicsScene->addActor(collAABB1);
+	collAABB2 = new AABB(glm::vec2(30, 0), glm::vec2(-5, 0), glm::vec2(0, 0), glm::vec2(5, 10), 2.0f, 0, glm::vec4(0, 1, 1, 1));	m_physicsScene->addActor(collAABB2);
 
 	//setupContinuousDemo(glm::vec2(-100, -50), 3.14 * 0.33, 25, -10);
 
@@ -63,10 +66,11 @@ void PhysicsEngineApp::shutdown()
 {
 	delete m_font;
 	delete m_2dRenderer;
-	delete collSphere1;				// Delete 1st Sphere
-	delete collSphere2;				// Delete 2nd Sphere
-	delete collPlane1;				// Delete 1st Plane
-	delete collPlane2;				// Delete 2nd Plane
+	//delete collSphere1;				// Delete 1st Sphere
+	//delete collSphere2;				// Delete 2nd Sphere
+	//delete collPlane1;				// Delete 1st Plane
+	//delete collPlane2;				// Delete 2nd Plane
+	delete collAABB1;
 }
 
 //============================================================================================================================================

@@ -41,8 +41,10 @@ protected:
 
 	class Sphere* collSphere1;	// 1st Sphere object
 	class Sphere* collSphere2;	// 2nd Sphere object
-	class Plane* collPlane1;	// 1st Plane object (Upper Plane)
-	class Plane* collPlane2;	// 2nd Plane object (Bottom Plane)
-	class Plane* collPlane3;	// 3st Plane object (Left Plane)
-	class Plane* collPlane4;	// 4nd Plane object (Bottom Plane)
+	class Plane*  collPlane1;	// 1st Plane object (Upper Plane)
+	class Plane*  collPlane2;	// 2nd Plane object (Bottom Plane)
+	class Plane*  collPlane3;	// 3st Plane object (Left Plane)
+	class Plane*  collPlane4;	// 4nd Plane object (Bottom Plane)
+	class AABB*   collAABB1;	// AABB object
+	class AABB*   collAABB2;	// AABB object
 };
