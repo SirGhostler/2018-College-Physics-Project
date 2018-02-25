@@ -268,26 +268,16 @@ bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 	if (aabb1 != nullptr && aabb2 != nullptr)
 	{
 
-		// Store the corners of the first AABB into variables
-		glm::vec2 extents1 = aabb1->getExtents();
-		glm::vec2 aabbTopLeftCorner1 = aabb1->getPosition() + glm::vec2(-extents1.x, extents1.y);
-		glm::vec2 aabbTopRightCorner1 = aabb1->getPosition() + glm::vec2(extents1.x, extents1.y);
-		glm::vec2 aabbBotLeftCorner1 = aabb1->getPosition() + glm::vec2(-extents1.x, -extents1.y);
-		glm::vec2 aabbBotRightCorner1 = aabb1->getPosition() + glm::vec2(extents1.x, -extents1.y);
-
-		// Store the corners of the second AABB into variables
-		glm::vec2 extents2 = aabb2->getExtents();
-		glm::vec2 aabbTopLeftCorner2 = aabb2->getPosition() + glm::vec2(-extents2.x, extents2.y);
-		glm::vec2 aabbTopRightCorner2 = aabb2->getPosition() + glm::vec2(extents2.x, extents2.y);
-		glm::vec2 aabbBotLeftCorner2 = aabb2->getPosition() + glm::vec2(-extents2.x, -extents2.y);
-		glm::vec2 aabbBotRightCorner2 = aabb2->getPosition() + glm::vec2(extents2.x, -extents2.y);
-
 		// Check if the AABBs are colliding
-		if ((aabb1->m_maxX > aabb2->m_minX && aabb1->m_minX < aabb2->m_maxX))
+		if ((aabb1->getPosition().x + aabb1->m_maxX) >= (aabb2->getPosition().x + aabb2->m_minX) &&
+			(aabb1->getPosition().x + aabb1->m_minX) <= (aabb2->getPosition().x + aabb2->m_maxX) &&
+			(aabb1->getPosition().y + aabb1->m_minY) <= (aabb2->getPosition().y + aabb2->m_maxY) &&
+			(aabb1->getPosition().y + aabb1->m_maxY) >= (aabb2->getPosition().y + aabb2->m_minY))
 		{
 			//separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
 			//aabb1->resolveCollision(aabb2);
 			aabb1->setVelocity(glm::vec2(0, 0));
+			aabb2->setVelocity(glm::vec2(0, 0));
 		}
 	}
 
