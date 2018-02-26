@@ -11,10 +11,10 @@ AABB::AABB(glm::vec2 position, glm::vec2 velocity, glm::vec2 acceleration, glm::
 {
 	m_extents = extents;
 	m_color = color;
-	m_minX = (-(getExtents().x));
-	m_maxX = (getExtents().x);
-	m_minY = (-(getExtents().y));
-	m_maxY = (getExtents().y);
+	m_minX = (-(getExtents().x));	// Left
+	m_maxX = (getExtents().x);		// Right
+	m_minY = (-(getExtents().y));	// Bottom
+	m_maxY = (getExtents().y);		// Top
 }
 
 void AABB::makeGizmo()

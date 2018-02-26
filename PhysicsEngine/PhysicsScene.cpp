@@ -183,16 +183,15 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		glm::vec2 collisionNormal = plane->getNormal();
 
 		// Store the corners of the AABB into variables
-		glm::vec2 extents = aabb->getExtents();
-		glm::vec2 aabbTopLeftCorner  = aabb->getPosition() + glm::vec2(-extents.x, extents.y);
-		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(extents.x, extents.y);
-		glm::vec2 aabbBotLeftCorner  = aabb->getPosition() + glm::vec2(-extents.x, -extents.y);
-		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(extents.x, -extents.y);
+		glm::vec2 aabbTopLeftCorner  = aabb->getPosition() + glm::vec2(aabb->m_minX, aabb->m_maxY);
+		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(aabb->m_maxX, aabb->m_maxY);
+		glm::vec2 aabbBotLeftCorner  = aabb->getPosition() + glm::vec2(aabb->m_minX, aabb->m_minY);
+		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(aabb->m_maxX, aabb->m_minY);
 
 		// Dot product the corners by the Plane's normal
-		float o1 = (glm::dot(aabbTopLeftCorner, collisionNormal) - plane->getDistanceToOrigin());
+		float o1 = (glm::dot(aabbTopLeftCorner,  collisionNormal) - plane->getDistanceToOrigin());
 		float o2 = (glm::dot(aabbTopRightCorner, collisionNormal) - plane->getDistanceToOrigin());
-		float o3 = (glm::dot(aabbBotLeftCorner, collisionNormal) - plane->getDistanceToOrigin());
+		float o3 = (glm::dot(aabbBotLeftCorner,  collisionNormal) - plane->getDistanceToOrigin());
 		float o4 = (glm::dot(aabbBotRightCorner, collisionNormal) - plane->getDistanceToOrigin());
 
 		// Variable for the lowest (furthest) overlap
@@ -225,6 +224,7 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 			// Call resolve collision function
 			separateCollision(aabb, plane, plane->getNormal(), lowestValue);
 			plane->resolveCollision(aabb);
+			return true;
 		}
 	}
 	// Return false if either object doesn't exist
