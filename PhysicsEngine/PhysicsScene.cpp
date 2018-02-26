@@ -267,17 +267,48 @@ bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 	// Check if both AABBs actually exist
 	if (aabb1 != nullptr && aabb2 != nullptr)
 	{
-
 		// Check if the AABBs are colliding
 		if ((aabb1->getPosition().x + aabb1->m_maxX) >= (aabb2->getPosition().x + aabb2->m_minX) &&
 			(aabb1->getPosition().x + aabb1->m_minX) <= (aabb2->getPosition().x + aabb2->m_maxX) &&
 			(aabb1->getPosition().y + aabb1->m_minY) <= (aabb2->getPosition().y + aabb2->m_maxY) &&
 			(aabb1->getPosition().y + aabb1->m_maxY) >= (aabb2->getPosition().y + aabb2->m_minY))
 		{
-			//separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
-			//aabb1->resolveCollision(aabb2);
-			aabb1->setVelocity(glm::vec2(0, 0));
-			aabb2->setVelocity(glm::vec2(0, 0));
+			// Get absolute values stored in variables to be used to obtain the collision normal
+			float a1 = (aabb1->getPosition().x + aabb1->m_maxX) - (aabb2->getPosition().x + aabb2->m_minX); // Right
+			float a2 = (aabb1->getPosition().x + aabb1->m_minX) - (aabb2->getPosition().x + aabb2->m_maxX); // Left
+			float a3 = (aabb1->getPosition().y + aabb1->m_minY) - (aabb2->getPosition().y + aabb2->m_maxY); // Bottom
+			float a4 = (aabb1->getPosition().y + aabb1->m_maxY) - (aabb2->getPosition().y + aabb2->m_minY); // Top
+
+			// Create the actual variable for the collision normal
+			glm::vec2 collisionNormal = glm::vec2(0, 0);
+
+			// Create a variable for the overlap
+			float overlap = 0;
+
+			// Checks to find which of the aformentioned variables is the lowest
+			if (collisionNormal == glm::vec2(0, 0))
+			{
+				// Check if a1 is the lowest
+				if (std::abs(a1) < std::abs(a2)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
+				if (std::abs(a1) < std::abs(a3)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
+				if (std::abs(a1) < std::abs(a4)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
+				// Check if a2 is the lowest
+				if (std::abs(a2) < std::abs(a1)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
+				if (std::abs(a2) < std::abs(a3)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
+				if (std::abs(a2) < std::abs(a4)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
+				// Check if a3 is the lowest
+				if (std::abs(a3) < std::abs(a1)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
+				if (std::abs(a3) < std::abs(a2)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
+				if (std::abs(a3) < std::abs(a4)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
+				// Check if a4 is the lowest
+				if (std::abs(a4) < std::abs(a1)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
+				if (std::abs(a4) < std::abs(a2)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
+				if (std::abs(a4) < std::abs(a3)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
+			}
+
+			// Call resolve collision function
+			separateCollision(aabb1, aabb2, collisionNormal, overlap);
+			aabb1->resolveCollision(aabb2);
 		}
 	}
 
