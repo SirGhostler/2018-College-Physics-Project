@@ -128,6 +128,7 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 			// Call resolve collision function
 			separateCollision(sphere, plane, plane->getNormal(), (sphere->getRadius() - intersection));
 			plane->resolveCollision(sphere);
+			return true;
 		}
 	}
 	// Return false if either object doesn't exist
@@ -155,6 +156,7 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 			// Call resolve collision function
 			separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
 			sphere1->resolveCollision(sphere2);
+			return true;
 		}
 	}
 
@@ -194,28 +196,19 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		float o3 = (glm::dot(aabbBotLeftCorner,  collisionNormal) - plane->getDistanceToOrigin());
 		float o4 = (glm::dot(aabbBotRightCorner, collisionNormal) - plane->getDistanceToOrigin());
 
-		// Variable for the lowest (furthest) overlap
-		float lowestValue = 0;
+		// Variable for the lowest (furthest) overlap, set it to o1 by default
+		float lowestValue = o1;
 
 		// Checks to find the lowest overlap
 		if (!lowestValue)
 		{
-			// Check if o1 is the lowest
-			if (o1 < o2) { lowestValue = o1; }
-			if (o1 < o3) { lowestValue = o1; }
-			if (o1 < o4) { lowestValue = o1; }
+			// Checks to find which of the aformentioned variables is the lower (if there is one)
 			// Check if o2 is the lowest
-			if (o2 < o1) { lowestValue = o2; }
-			if (o2 < o3) { lowestValue = o2; }
-			if (o2 < o4) { lowestValue = o2; }
+			if (o2 < lowestValue) { lowestValue = o2; }
 			// Check if o3 is the lowest
-			if (o3 < o1) { lowestValue = o3; }
-			if (o3 < o2) { lowestValue = o3; }
-			if (o3 < o4) { lowestValue = o3; }
+			if (o3 < lowestValue) { lowestValue = o3; }
 			// Check if o4 is the lowest
-			if (o4 < o1) { lowestValue = o4; }
-			if (o4 < o2) { lowestValue = o4; }
-			if (o4 < o3) { lowestValue = o4; }
+			if (o4 < lowestValue) { lowestValue = o4; }
 		}
 
 		// Check if any of the corners are below the plane
@@ -240,24 +233,26 @@ bool PhysicsScene::AABB2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 	// Check if both objects exist
 	if (aabb != nullptr && sphere != nullptr)
 	{
-		glm::vec2 sphereCenter = sphere->getPosition();
+		// Get the offset by taking the Sphere's position and deducting it by the AABB's position
+		glm::vec2 offset = (sphere->getPosition() - aabb->getPosition());
 
-		// Store the corners of the AABB into variables
-		glm::vec2 extents = aabb->getExtents();
-		glm::vec2 aabbTopLeftCorner = aabb->getPosition() + glm::vec2(-extents.x, extents.y);
-		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(extents.x, extents.y);
-		glm::vec2 aabbBotLeftCorner = aabb->getPosition() + glm::vec2(-extents.x, -extents.y);
-		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(extents.x, -extents.y);
+		float closestPoint = offset().x;
+		
+		float objectDistance = sphere->getPosition().x - closestPoint;
 
-
-		//glm::vec2 distanceToSphere = sphere->  aabb->getExtents().x;
+		if (objectDistance < sphere->getRadius())
+		{
+			//separateCollision(aabb, plane, plane->getNormal(), lowestValue);
+			//plane->resolveCollision(aabb);
+			return true;
+		}
 	}
 
 	// Return false if either object doesn't exist
 	return false;
-
 }
 
+// AABB to AABB Collision
 bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Cast AABB 1 to Obj1 and AABB 2 to Obj2
@@ -280,31 +275,18 @@ bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 			float a4 = (aabb1->getPosition().y + aabb1->m_maxY) - (aabb2->getPosition().y + aabb2->m_minY); // Top
 
 			// Create the actual variable for the collision normal
-			glm::vec2 collisionNormal = glm::vec2(0, 0);
+			glm::vec2 collisionNormal = glm::vec2(1, 0);
 
-			// Create a variable for the overlap
-			float overlap = 0;
+			// Create a variable for the overlap, set it to the right by default
+			float overlap = a1;
 
-			// Checks to find which of the aformentioned variables is the lowest
-			if (collisionNormal == glm::vec2(0, 0))
-			{
-				// Check if a1 is the lowest
-				if (std::abs(a1) < std::abs(a2)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
-				if (std::abs(a1) < std::abs(a3)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
-				if (std::abs(a1) < std::abs(a4)) { collisionNormal = glm::vec2(1, 0); overlap = a1; }
-				// Check if a2 is the lowest
-				if (std::abs(a2) < std::abs(a1)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
-				if (std::abs(a2) < std::abs(a3)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
-				if (std::abs(a2) < std::abs(a4)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
-				// Check if a3 is the lowest
-				if (std::abs(a3) < std::abs(a1)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
-				if (std::abs(a3) < std::abs(a2)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
-				if (std::abs(a3) < std::abs(a4)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
-				// Check if a4 is the lowest
-				if (std::abs(a4) < std::abs(a1)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
-				if (std::abs(a4) < std::abs(a2)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
-				if (std::abs(a4) < std::abs(a3)) { collisionNormal = glm::vec2(0, 1); overlap = a4; }
-			}
+			// Checks to find which of the aformentioned variables is the lower (if there is one)
+			// Check if a2 is the lowest
+			if (std::abs(a2) < std::abs(overlap)) { collisionNormal = glm::vec2(-1, 0); overlap = a2; }
+			// Check if a3 is the lowest
+			if (std::abs(a3) < std::abs(overlap)) { collisionNormal = glm::vec2(0, -1); overlap = a3; }
+			// Check if a4 is the lowest
+			if (std::abs(a4) < std::abs(overlap)) { collisionNormal = glm::vec2(0, 1);  overlap = a4; }
 
 			// Call resolve collision function
 			separateCollision(aabb1, aabb2, collisionNormal, overlap);
