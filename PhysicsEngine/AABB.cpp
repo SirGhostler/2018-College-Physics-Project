@@ -14,10 +14,21 @@ AABB::AABB(glm::vec2 position, glm::vec2 velocity, glm::vec2 acceleration, glm::
 {
 	m_extents = extents;
 	m_color = color;
-	m_minX = (-(getExtents().x));	// Left
-	m_maxX = (getExtents().x);		// Right
-	m_minY = (-(getExtents().y));	// Bottom
-	m_maxY = (getExtents().y);		// Top
+	//m_minX = (-(getExtents().x));	// Left
+	//m_maxX = (getExtents().x);		// Right
+	//m_minY = (-(getExtents().y));	// Bottom
+	//m_maxY = (getExtents().y);		// Top
+
+	m_min = m_position - m_extents;
+	m_max = m_extents + m_position;
+}
+
+void AABB::fixedUpdate(glm::vec2 gravity, float timeStep)
+{
+	Rigidbody::fixedUpdate(gravity, timeStep);
+
+	m_min = m_position - m_extents;
+	m_max = m_extents + m_position;
 }
 
 //============================================================================================================================================

@@ -28,7 +28,7 @@ public:
 	// Collision
 
 	virtual bool checkCollision(PhysicsObject* pOther) = 0;
-	void resolveCollision(Rigidbody* actor2);
+	void resolveCollision(Rigidbody* actor2, glm::vec2 cnor);
 
 	//============================================================================================================================================
 	// Getters and Setters

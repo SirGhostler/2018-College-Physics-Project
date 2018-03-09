@@ -32,7 +32,7 @@ public:
 	virtual void fixedUpdate(glm::vec2 gravity, float dt) override {}
 	virtual void debug() override {}
 	virtual void makeGizmo();
-	void resolveCollision(Rigidbody* actor2);
+	void resolveCollision(Rigidbody* actor2, glm::vec2 cnor);
 
 private:
 	glm::vec2 m_normal;

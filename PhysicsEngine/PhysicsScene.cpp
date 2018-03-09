@@ -103,8 +103,8 @@ bool PhysicsScene::plane2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Cast the Sphere to Obj1 and the Plane to Obj2
-	Sphere *sphere = dynamic_cast<Sphere*>(obj1);
-	Plane  *plane = dynamic_cast <Plane*> (obj2);
+	Sphere *sphere = dynamic_cast <Sphere*> (obj1);
+	Plane  *plane  = dynamic_cast <Plane*>  (obj2);
 
 	// Check if both objects actually exist
 	if (sphere != nullptr && plane != nullptr)
@@ -126,8 +126,8 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		if (intersection > 0)
 		{
 			// Call resolve collision function
-			separateCollision(sphere, plane, plane->getNormal(), (sphere->getRadius() - intersection));
-			plane->resolveCollision(sphere);
+			separateCollision(sphere, plane, -collisionNormal, (sphere->getRadius() - intersection));
+			plane->resolveCollision(sphere, collisionNormal);
 			return true;
 		}
 	}
@@ -139,8 +139,8 @@ bool PhysicsScene::sphere2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Cast Sphere 1 to Obj1 and Sphere 2 to Obj2
-	Sphere *sphere1 = dynamic_cast<Sphere*>(obj1);
-	Sphere *sphere2 = dynamic_cast<Sphere*>(obj2);
+	Sphere *sphere1 = dynamic_cast <Sphere*> (obj1);
+	Sphere *sphere2 = dynamic_cast <Sphere*> (obj2);
 
 	// Check if both Spheres exist
 	if (sphere1 != nullptr && sphere2 != nullptr)
@@ -150,12 +150,15 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 		// Get the distance between both Spheres
 		float objectDistance = glm::distance(sphere1->getPosition(), sphere2->getPosition());
 
+		// A variable for the collision normal
+		glm::vec2 collisionNormal(glm::normalize(sphere1->getPosition() - sphere2->getPosition()));
+
 		// Check if the distance between both Spheres is less than their combined radii
 		if (objectDistance < combinedRadii)
 		{
 			// Call resolve collision function
-			separateCollision(sphere1, sphere2, glm::normalize(sphere1->getPosition() - sphere2->getPosition()), (combinedRadii - objectDistance));
-			sphere1->resolveCollision(sphere2);
+			separateCollision(sphere1, sphere2, -collisionNormal, (combinedRadii - objectDistance));
+			sphere1->resolveCollision(sphere2, collisionNormal);
 			return true;
 		}
 	}
@@ -175,7 +178,7 @@ bool PhysicsScene::sphere2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Cast the AABB to Obj1 and the Plane to Obj2
-	AABB *aabb = dynamic_cast<AABB*>(obj1);
+	AABB  *aabb  = dynamic_cast <AABB*>  (obj1);
 	Plane *plane = dynamic_cast <Plane*> (obj2);
 
 	// Check if both objects actually exist
@@ -185,10 +188,10 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		glm::vec2 collisionNormal = plane->getNormal();
 
 		// Store the corners of the AABB into variables
-		glm::vec2 aabbTopLeftCorner  = aabb->getPosition() + glm::vec2(aabb->m_minX, aabb->m_maxY);
-		glm::vec2 aabbTopRightCorner = aabb->getPosition() + glm::vec2(aabb->m_maxX, aabb->m_maxY);
-		glm::vec2 aabbBotLeftCorner  = aabb->getPosition() + glm::vec2(aabb->m_minX, aabb->m_minY);
-		glm::vec2 aabbBotRightCorner = aabb->getPosition() + glm::vec2(aabb->m_maxX, aabb->m_minY);
+		glm::vec2 aabbTopLeftCorner  = aabb->m_min + glm::vec2(0, aabb->getExtents().y * 2);
+		glm::vec2 aabbTopRightCorner = aabb->m_max;
+		glm::vec2 aabbBotLeftCorner  = aabb->m_min;
+		glm::vec2 aabbBotRightCorner = aabb->m_min + glm::vec2(aabb->getExtents().x * 2, 0);
 
 		// Dot product the corners by the Plane's normal
 		float o1 = (glm::dot(aabbTopLeftCorner,  collisionNormal) - plane->getDistanceToOrigin());
@@ -215,8 +218,8 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 		if ((o1 < 0) || (o2 < 0) || (o3 < 0) || (o4 < 0))
 		{
 			// Call resolve collision function
-			separateCollision(aabb, plane, plane->getNormal(), lowestValue);
-			plane->resolveCollision(aabb);
+			separateCollision(aabb, plane, -collisionNormal, lowestValue);
+			plane->resolveCollision(aabb, collisionNormal);
 			return true;
 		}
 	}
@@ -224,26 +227,37 @@ bool PhysicsScene::AABB2Plane(PhysicsObject* obj1, PhysicsObject* obj2)
 	return false;
 }
 
+// AABB to Sphere Collision
 bool PhysicsScene::AABB2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 {
 	// Cast the AABB to Obj1 and the Sphere to Obj2
-	AABB *aabb = dynamic_cast<AABB*>(obj1);
+	AABB   *aabb   = dynamic_cast <AABB*>   (obj1);
 	Sphere *sphere = dynamic_cast <Sphere*> (obj2);
 
 	// Check if both objects exist
 	if (aabb != nullptr && sphere != nullptr)
 	{
-		// Get the offset by taking the Sphere's position and deducting it by the AABB's position
-		glm::vec2 offset = (sphere->getPosition() - aabb->getPosition());
+		//float clampX = glm::clamp(sphere->getPosition().x, aabb->m_minX, aabb->m_maxX);
+		//float clampY = glm::clamp(sphere->getPosition().y, aabb->m_minY, aabb->m_maxY);
 
-		float closestPoint = offset().x;
-		
-		float objectDistance = sphere->getPosition().x - closestPoint;
+		// Get a clamped position with the AABB and the Sphere
+		glm::vec2 clampedPosition = glm::clamp(sphere->getPosition(), aabb->m_min, aabb->m_max);
 
+		// A variable for the distance between the Sphere and the clamped position
+		float objectDistance = glm::length(sphere->getPosition() - clampedPosition);
+
+		// A variable for the collision normal
+		glm::vec2 collisionNormal = glm::normalize(sphere->getPosition() - clampedPosition);
+
+		// A variable for the overlap
+		float overlap = (sphere->getRadius() - objectDistance);
+
+		// Check if the objectDistance is less than the Sphere's radius
 		if (objectDistance < sphere->getRadius())
 		{
-			//separateCollision(aabb, plane, plane->getNormal(), lowestValue);
-			//plane->resolveCollision(aabb);
+			// Call resolve collision function
+			separateCollision(aabb, sphere, collisionNormal, overlap);
+			aabb->resolveCollision(sphere, collisionNormal);
 			return true;
 		}
 	}
@@ -255,24 +269,22 @@ bool PhysicsScene::AABB2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 // AABB to AABB Collision
 bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-	// Cast AABB 1 to Obj1 and AABB 2 to Obj2
-	AABB *aabb1 = dynamic_cast<AABB*>(obj1);
+	//// Cast AABB 1 to Obj1 and AABB 2 to Obj2
+	AABB *aabb1 = dynamic_cast <AABB*> (obj1);
 	AABB *aabb2 = dynamic_cast <AABB*> (obj2);
 
 	// Check if both AABBs actually exist
 	if (aabb1 != nullptr && aabb2 != nullptr)
 	{
 		// Check if the AABBs are colliding
-		if ((aabb1->getPosition().x + aabb1->m_maxX) >= (aabb2->getPosition().x + aabb2->m_minX) &&
-			(aabb1->getPosition().x + aabb1->m_minX) <= (aabb2->getPosition().x + aabb2->m_maxX) &&
-			(aabb1->getPosition().y + aabb1->m_minY) <= (aabb2->getPosition().y + aabb2->m_maxY) &&
-			(aabb1->getPosition().y + aabb1->m_maxY) >= (aabb2->getPosition().y + aabb2->m_minY))
+		if ((aabb1->m_max.x) >= (aabb2->m_min.x) && (aabb1->m_min.x) <= (aabb2->m_max.x) &&
+			(aabb1->m_min.y) <= (aabb2->m_max.y) && (aabb1->m_max.y) >= (aabb2->m_min.y))
 		{
 			// Get absolute values stored in variables to be used to obtain the collision normal
-			float a1 = (aabb1->getPosition().x + aabb1->m_maxX) - (aabb2->getPosition().x + aabb2->m_minX); // Right
-			float a2 = (aabb1->getPosition().x + aabb1->m_minX) - (aabb2->getPosition().x + aabb2->m_maxX); // Left
-			float a3 = (aabb1->getPosition().y + aabb1->m_minY) - (aabb2->getPosition().y + aabb2->m_maxY); // Bottom
-			float a4 = (aabb1->getPosition().y + aabb1->m_maxY) - (aabb2->getPosition().y + aabb2->m_minY); // Top
+			float a1 = (aabb1->m_max.x) - (aabb2->m_min.x); // Right
+			float a4 = (aabb1->m_max.y) - (aabb2->m_min.y); // Top
+			float a2 = (aabb2->m_max.x) - (aabb1->m_min.x); // Left
+			float a3 = (aabb2->m_max.y) - (aabb1->m_min.y); // Bottom
 
 			// Create the actual variable for the collision normal
 			glm::vec2 collisionNormal = glm::vec2(1, 0);
@@ -290,7 +302,7 @@ bool PhysicsScene::AABB2AABB(PhysicsObject* obj1, PhysicsObject* obj2)
 
 			// Call resolve collision function
 			separateCollision(aabb1, aabb2, collisionNormal, overlap);
-			aabb1->resolveCollision(aabb2);
+			aabb1->resolveCollision(aabb2, collisionNormal);
 		}
 	}
 
@@ -344,8 +356,8 @@ void PhysicsScene::separateCollision(PhysicsObject* obj1, PhysicsObject* obj2, g
 			glm::vec2 currentPosition1 = rigidBody1->getPosition();
 			glm::vec2 currentPosition2 = rigidBody2->getPosition();
 			// Set position of the Objects
-			rigidBody1->setPosition(currentPosition1 + ((overlap * normal) * 0.5f));
-			rigidBody2->setPosition(currentPosition2 - ((overlap * normal) * 0.5f));
+			rigidBody1->setPosition(currentPosition1 - ((overlap * normal) * 0.5f));
+			rigidBody2->setPosition(currentPosition2 + ((overlap * normal) * 0.5f));
 		}
 	}
 }

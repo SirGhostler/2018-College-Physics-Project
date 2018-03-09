@@ -51,7 +51,7 @@ void Plane::makeGizmo()
 // Collision Functions
 
 // Resolve Collision
-void Plane::resolveCollision(Rigidbody* actor2)
+void Plane::resolveCollision(Rigidbody* actor2, glm::vec2 cnor)
 {
 	// Set the normal
 	glm::vec2 normal = m_normal;

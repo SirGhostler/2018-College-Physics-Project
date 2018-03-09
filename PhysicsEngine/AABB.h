@@ -18,6 +18,8 @@ public:
 	AABB(glm::vec2 position, glm::vec2 velocity, glm::vec2 acceleration, glm::vec2 extents, float mass, float radius, glm::vec4 color);
 	//~AABB();
 
+	virtual void fixedUpdate(glm::vec2 gravity, float timeStep);
+
 	//============================================================================================================================================
 	// Getters And Setters
 
@@ -29,10 +31,16 @@ public:
 
 	virtual void makeGizmo();
 	virtual bool checkCollision(PhysicsObject* pOther);
-	float m_minX;
-	float m_maxX;
-	float m_minY;
-	float m_maxY;
+	//float m_minX;
+	//float m_maxX;
+	//float m_minY;
+	//float m_maxY;
+	
+	// Max pos of aabb
+	glm::vec2 m_max;
+	// Min pos of aabb
+	glm::vec2 m_min;
+
 
 protected:
 	glm::vec2 m_extents;
